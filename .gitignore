@@ -1,0 +1,58 @@
+# ============================================
+# EduMentor AI - Git Ignore
+# ============================================
+
+# Environment & Secrets (NEVER commit these)
+.env
+*.env
+.env.*
+!.env.example
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# Model files (too large for git)
+finetuned_model/
+*.bin
+*.safetensors
+*.pt
+*.pth
+
+# Hugging Face cache
+hf_cache/
+
+# Uploaded documents (user data)
+uploads/
+
+# Audio output files
+audio_output/
+
+# Metrics logs
+metrics_logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Distribution
+dist/
+build/
+*.egg-info/

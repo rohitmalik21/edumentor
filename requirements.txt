@@ -1,0 +1,43 @@
+# ============================================
+# EduMentor AI - Dependencies
+# ============================================
+# NOTE: Python 3.11 or 3.12 is strongly recommended.
+# Many ML packages (torch, faiss, whisper) have limited Python 3.14 support.
+
+# UI Framework
+gradio
+
+# LLM Providers
+google-generativeai
+openai
+
+# Document Processing
+PyPDF2
+python-docx
+
+# RAG / Vector Search
+sentence-transformers
+faiss-cpu
+
+# Speech
+SpeechRecognition
+pydub
+gTTS
+
+# Fine-tuning
+transformers
+datasets
+torch
+accelerate
+evaluate
+rouge-score
+nltk
+
+# LLMOps / Metrics
+prometheus-client
+psutil
+
+# Utilities
+python-dotenv
+numpy
+pandas
