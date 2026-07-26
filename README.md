@@ -78,13 +78,15 @@ git clone https://github.com/rohitmalik21/edumentor.git
 cd edumentor
 ```
 
-### 2. Create a virtual environment (Python 3.13 recommended)
+### 2. Create a virtual environment (Python 3.11, 3.12, or 3.13 recommended)
 
 ```bash
 py -3.13 -m venv venv
 venv\Scripts\activate          # Windows
 # source venv/bin/activate     # macOS/Linux
 ```
+
+> **Note:** Python 3.14 is NOT supported. Use 3.11, 3.12, or 3.13 for full compatibility.
 
 ### 3. Install PyTorch with GPU support (optional)
 
