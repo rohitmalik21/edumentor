@@ -84,6 +84,7 @@ class AskResponse(BaseModel):
     answer: str
     context_used: str
     relevance_score: float
+    model_used: str
     error: bool
 
 
@@ -96,6 +97,8 @@ class QuizGenerateRequest(BaseModel):
 class QuizGenerateResponse(BaseModel):
     quiz: dict | None
     display_text: str
+    model_used: str
+    fine_tuned: bool
     error: str | None
 
 
@@ -248,10 +251,19 @@ def ask(request: AskRequest):
 
     result = answer_question(request.question)
 
+    # Identify model used
+    if Config.LLM_PROVIDER == "local":
+        model_name = "RAG (Sentence-Transformers + FAISS) + FLAN-T5-small"
+    elif Config.LLM_PROVIDER == "gemini":
+        model_name = f"RAG + {Config.GEMINI_MODEL}"
+    else:
+        model_name = f"RAG + {Config.OPENAI_MODEL}"
+
     return AskResponse(
         answer=result["answer"],
         context_used=result["context_used"],
         relevance_score=result["relevance_score"],
+        model_used=model_name,
         error=result.get("error", False),
     )
 
@@ -261,6 +273,7 @@ def quiz_generate(request: QuizGenerateRequest):
     """
     Generate an adaptive quiz from the uploaded study material.
     Supports MCQ, True/False, and Short Answer question types.
+    Uses fine-tuned model if available, otherwise falls back to base model.
     """
     material = _material_store.get("text", "")
     if not material:
@@ -277,9 +290,22 @@ def quiz_generate(request: QuizGenerateRequest):
     if result.get("quiz"):
         display_text = format_quiz_for_display(result["quiz"])
 
+    # Determine which model was used
+    from services.quiz_generator import _is_finetuned_model_available
+    is_finetuned = _is_finetuned_model_available() and Config.LLM_PROVIDER == "local"
+
+    if Config.LLM_PROVIDER == "local":
+        model_name = "Fine-tuned FLAN-T5-small (SciQ)" if is_finetuned else "FLAN-T5-small (base)"
+    elif Config.LLM_PROVIDER == "gemini":
+        model_name = Config.GEMINI_MODEL
+    else:
+        model_name = Config.OPENAI_MODEL
+
     return QuizGenerateResponse(
         quiz=result.get("quiz"),
         display_text=display_text,
+        model_used=model_name,
+        fine_tuned=is_finetuned,
         error=result.get("error"),
     )
 

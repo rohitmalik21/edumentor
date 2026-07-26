@@ -141,6 +141,12 @@ class MetricsLogger:
             else 0
         )
 
+        # Calculate p50 and p95 latency
+        sorted_latencies = sorted(self.latencies) if self.latencies else []
+        p50_latency = sorted_latencies[len(sorted_latencies) // 2] if sorted_latencies else 0
+        p95_idx = int(len(sorted_latencies) * 0.95) if sorted_latencies else 0
+        p95_latency = sorted_latencies[min(p95_idx, len(sorted_latencies) - 1)] if sorted_latencies else 0
+
         # Calculate throughput (requests per minute over last 60 seconds)
         now = time.time()
         recent_requests = [
@@ -163,10 +169,11 @@ class MetricsLogger:
                 else "N/A"
             ),
             "avg_latency_seconds": round(avg_latency, 3),
-            "total_tokens_used": self.total_tokens_used,
+            "p50_latency_seconds": round(p50_latency, 3),
+            "p95_latency_seconds": round(p95_latency, 3),
+            "estimated_total_tokens": self.total_tokens_used,
             "throughput_per_minute": throughput,
-            "avg_confidence_score": round(avg_confidence, 3),
-            "avg_relevance_score": round(avg_relevance, 3),
+            "avg_similarity_score": round(avg_relevance, 3),
             "cpu_usage_percent": cpu_percent,
             "memory_usage_percent": memory.percent,
             "service_breakdown": self.service_metrics,

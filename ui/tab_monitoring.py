@@ -24,10 +24,11 @@ def refresh_metrics():
 | Failed | {summary['failed_requests']} |
 | Success Rate | {summary['success_rate']} |
 | Avg Latency | {summary['avg_latency_seconds']}s |
-| Total Tokens Used | {summary['total_tokens_used']} |
+| P50 Latency | {summary['p50_latency_seconds']}s |
+| P95 Latency | {summary['p95_latency_seconds']}s |
+| Estimated Tokens Used | {summary['estimated_total_tokens']} |
 | Throughput (req/min) | {summary['throughput_per_minute']} |
-| Avg Confidence | {summary['avg_confidence_score']} |
-| Avg Relevance | {summary['avg_relevance_score']} |
+| Avg Similarity Score | {summary['avg_similarity_score']} |
 | CPU Usage | {summary['cpu_usage_percent']}% |
 | Memory Usage | {summary['memory_usage_percent']}% |
 """
@@ -116,12 +117,12 @@ def create_monitoring_tab():
 
 | # | Metric | Description | Why It Matters |
 |---|--------|-------------|----------------|
-| 1 | **API Latency** | Response time per request | User experience & SLA compliance |
+| 1 | **API Latency** | Response time per request (avg, p50, p95) | User experience & SLA compliance |
 | 2 | **Success/Failure Rate** | Percentage of successful API calls | Reliability monitoring |
-| 3 | **Token Usage** | Total tokens consumed | Cost management |
+| 3 | **Estimated Token Usage** | Approximate tokens consumed (word-based estimate) | Cost management |
 | 4 | **Throughput** | Requests per minute | Capacity planning |
-| 5 | **Relevance Score** | Cosine similarity between query and retrieved passages | Quality of grounded responses |
-| 6 | **Confidence Score** | Model's self-assessed certainty | Identifying uncertain outputs |
-| 7 | **Prompt Versioning** | Track which prompt templates are active | Reproducibility & A/B testing |
-| 8 | **System Resources** | CPU and memory usage | Infrastructure monitoring |
+| 5 | **Similarity Score** | Cosine similarity between query and retrieved passages (0-1) | RAG retrieval quality |
+| 6 | **Prompt Versioning** | Track which prompt templates are active | Reproducibility & A/B testing |
+| 7 | **System Resources** | CPU and memory usage | Infrastructure monitoring |
+| 8 | **Per-Service Breakdown** | Calls and avg latency per service | Identify bottlenecks |
         """)
