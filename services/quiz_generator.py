@@ -106,6 +106,9 @@ def _generate_quiz_finetuned(material: str, num_questions: int, difficulty: str)
         while len(selected) < num_questions:
             selected.append(random.choice(sentences))
 
+    import time as _time
+    _quiz_start = _time.time()
+
     for i, sentence in enumerate(selected, 1):
         input_text = f"Generate a question from the following educational passage: {sentence[:300]}"
         input_ids = tokenizer(input_text, return_tensors="pt", max_length=512, truncation=True).input_ids
@@ -130,13 +133,15 @@ def _generate_quiz_finetuned(material: str, num_questions: int, difficulty: str)
             "explanation": f"Based on: {sentence[:100]}...",
         })
 
-    # Log metrics
+    _quiz_latency = _time.time() - _quiz_start
+
+    # Log metrics with real measured values
     metrics.log_request(
         service="quiz_generation",
-        latency=0,
-        tokens_used=0,
+        latency=_quiz_latency,
+        tokens_used=sum(len(s.split()) for s in selected),  # Actual input tokens processed
         success=True,
-        confidence=0.8,
+        # No hard-coded confidence — not applicable for rule-based MCQ generation
     )
 
     return {

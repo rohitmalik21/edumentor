@@ -120,7 +120,7 @@ def create_monitoring_tab():
 | 2 | **Success/Failure Rate** | Percentage of successful API calls | Reliability monitoring |
 | 3 | **Token Usage** | Total tokens consumed | Cost management |
 | 4 | **Throughput** | Requests per minute | Capacity planning |
-| 5 | **Relevance Score** | How well answers match source material | Quality of grounded responses |
+| 5 | **Relevance Score** | Cosine similarity between query and retrieved passages | Quality of grounded responses |
 | 6 | **Confidence Score** | Model's self-assessed certainty | Identifying uncertain outputs |
 | 7 | **Prompt Versioning** | Track which prompt templates are active | Reproducibility & A/B testing |
 | 8 | **System Resources** | CPU and memory usage | Infrastructure monitoring |

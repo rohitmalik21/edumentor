@@ -179,6 +179,10 @@ def answer_question(question: str) -> dict:
 
     metrics.log_prompt_version("question_answering", PROMPT_VERSION, QA_PROMPT)
 
+    # Measure actual latency for the QA process
+    import time as _time
+    _qa_start = _time.time()
+
     # For local models: combine LLM short answer with retrieved passages for complete response
     if Config.LLM_PROVIDER == "local":
         answer = _build_local_answer(question, retrieved, avg_relevance)
@@ -195,13 +199,15 @@ def answer_question(question: str) -> dict:
         except Exception as e:
             answer = f"Error: {str(e)}"
 
-    # Log relevance metric
+    _qa_latency = _time.time() - _qa_start
+
+    # Log metrics with real measured values
     metrics.log_request(
         service="question_answering",
-        latency=0,
-        tokens_used=0,
+        latency=_qa_latency,
+        tokens_used=len(context.split()),  # Approximate tokens from context length
         success=True,
-        relevance=avg_relevance,
+        relevance=avg_relevance,  # Cosine similarity score (0-1), not a calibrated probability
     )
 
     return {
