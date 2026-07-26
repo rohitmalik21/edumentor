@@ -121,7 +121,7 @@ def create_monitoring_tab():
 | 2 | **Success/Failure Rate** | Percentage of successful API calls | Reliability monitoring |
 | 3 | **Estimated Token Usage** | Approximate tokens consumed (word-based estimate) | Cost management |
 | 4 | **Throughput** | Requests per minute | Capacity planning |
-| 5 | **Similarity Score** | Cosine similarity between query and retrieved passages (0-1) | RAG retrieval quality |
+| 5 | **Similarity Score** | L2-derived retrieval similarity score (0-1) | RAG retrieval quality |
 | 6 | **Prompt Versioning** | Track which prompt templates are active | Reproducibility & A/B testing |
 | 7 | **System Resources** | CPU and memory usage | Infrastructure monitoring |
 | 8 | **Per-Service Breakdown** | Calls and avg latency per service | Identify bottlenecks |

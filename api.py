@@ -251,9 +251,9 @@ def ask(request: AskRequest):
 
     result = answer_question(request.question)
 
-    # Identify model used
+    # Identify model used — honest label for local mode
     if Config.LLM_PROVIDER == "local":
-        model_name = "RAG (Sentence-Transformers + FAISS) + FLAN-T5-small"
+        model_name = "RAG Retrieval: all-MiniLM-L6-v2 + FAISS"
     elif Config.LLM_PROVIDER == "gemini":
         model_name = f"RAG + {Config.GEMINI_MODEL}"
     else:
@@ -290,16 +290,9 @@ def quiz_generate(request: QuizGenerateRequest):
     if result.get("quiz"):
         display_text = format_quiz_for_display(result["quiz"])
 
-    # Determine which model was used
-    from services.quiz_generator import _is_finetuned_model_available
-    is_finetuned = _is_finetuned_model_available() and Config.LLM_PROVIDER == "local"
-
-    if Config.LLM_PROVIDER == "local":
-        model_name = "Fine-tuned FLAN-T5-small (SciQ)" if is_finetuned else "FLAN-T5-small (base)"
-    elif Config.LLM_PROVIDER == "gemini":
-        model_name = Config.GEMINI_MODEL
-    else:
-        model_name = Config.OPENAI_MODEL
+    # Use actual model metadata from the generator (not guessed from file existence)
+    model_name = result.get("model_used", "Unknown")
+    is_finetuned = result.get("fine_tuned", False)
 
     return QuizGenerateResponse(
         quiz=result.get("quiz"),

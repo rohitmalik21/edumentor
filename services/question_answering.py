@@ -205,9 +205,9 @@ def answer_question(question: str) -> dict:
     metrics.log_request(
         service="question_answering",
         latency=_qa_latency,
-        tokens_used=len(context.split()),  # Approximate tokens from context length
+        tokens_used=len(context.split()),  # Estimated tokens (word count, not tokenizer tokens)
         success=True,
-        relevance=avg_relevance,  # Cosine similarity score (0-1), not a calibrated probability
+        relevance=avg_relevance,  # L2-derived similarity score (0-1), not a calibrated probability
     )
 
     return {

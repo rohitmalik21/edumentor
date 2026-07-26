@@ -88,7 +88,12 @@ def _generate_quiz_finetuned(material: str, num_questions: int, difficulty: str)
         model, tokenizer = _load_finetuned_model()
     except Exception as e:
         # Fallback to base local model if fine-tuned model fails
-        return _generate_quiz_local(material, num_questions, difficulty)
+        result = _generate_quiz_local(material, num_questions, difficulty)
+        if result.get("quiz"):
+            result["model_used"] = "FLAN-T5-small (base)"
+            result["fine_tuned"] = False
+            result["fallback_used"] = True
+        return result
 
     questions = []
 
@@ -139,9 +144,8 @@ def _generate_quiz_finetuned(material: str, num_questions: int, difficulty: str)
     metrics.log_request(
         service="quiz_generation",
         latency=_quiz_latency,
-        tokens_used=sum(len(s.split()) for s in selected),  # Actual input tokens processed
+        tokens_used=sum(len(s.split()) for s in selected),  # Estimated input tokens (word count)
         success=True,
-        # No hard-coded confidence — not applicable for rule-based MCQ generation
     )
 
     return {
@@ -151,6 +155,9 @@ def _generate_quiz_finetuned(material: str, num_questions: int, difficulty: str)
             "questions": questions,
         },
         "raw_response": "Generated using fine-tuned FLAN-T5 model",
+        "model_used": "Fine-tuned FLAN-T5-small (SciQ)",
+        "fine_tuned": True,
+        "fallback_used": False,
         "error": None,
     }
 
@@ -224,6 +231,9 @@ def _generate_quiz_local(material: str, num_questions: int, difficulty: str) -> 
             "questions": questions,
         },
         "raw_response": "Generated using focused local model approach",
+        "model_used": "FLAN-T5-small (base)",
+        "fine_tuned": False,
+        "fallback_used": False,
         "error": None,
     }
 
