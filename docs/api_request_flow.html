@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduMentor AI - API Request Flow</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #fefefe;
+            padding: 40px 20px;
+            color: #333;
+        }
+        .diagram-container { max-width: 1250px; margin: 0 auto; }
+        h1 { text-align: center; font-size: 1.8em; color: #2d3748; margin-bottom: 6px; }
+        .subtitle { text-align: center; color: #718096; font-size: 0.92em; margin-bottom: 36px; }
+        .section-title {
+            text-align: center; font-weight: 700; font-size: 1.1em;
+            letter-spacing: 2px; margin-bottom: 20px;
+        }
+        .section-title.success { color: #276749; }
+        .section-title.error { color: #c53030; }
+
+        /* Component boxes */
+        .components {
+            display: flex; justify-content: center; gap: 14px;
+            margin-bottom: 28px; flex-wrap: wrap;
+        }
+        .component {
+            border-radius: 10px; padding: 14px 16px; text-align: center;
+            font-size: 0.84em; font-weight: 600; min-width: 150px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .component .label { font-size: 0.95em; font-weight: 700; }
+        .component .sublabel { font-size: 0.76em; font-weight: 400; color: #555; margin-top: 2px; }
+        .comp-user { background: #fff5f5; border: 2px solid #fc8181; color: #c53030; }
+        .comp-gradio { background: #fffff0; border: 2px solid #ecc94b; color: #975a16; }
+        .comp-fastapi { background: #f0fff4; border: 2px solid #68d391; color: #276749; }
+        .comp-service { background: #ebf8ff; border: 2px solid #63b3ed; color: #2a4365; }
+        .comp-model { background: #faf5ff; border: 2px solid #b794f4; color: #553c9a; }
+        .comp-metrics { background: #fffaf0; border: 2px solid #f6ad55; color: #9c4221; }
+
+        /* Flow sections */
+        .flow-section {
+            border-radius: 16px; padding: 28px 24px; margin-bottom: 36px; position: relative;
+        }
+        .flow-section.success-section {
+            background: linear-gradient(135deg, #f0fff4 0%, #ebf8ff 100%);
+            border: 1px solid #c6f6d5;
+        }
+        .flow-section.error-section {
+            background: linear-gradient(135deg, #fff5f5 0%, #fffaf0 100%);
+            border: 1px solid #fed7d7;
+        }
+        /* Flow steps */
+        .flow-steps { display: flex; flex-direction: column; gap: 4px; }
+        .flow-step {
+            display: flex; align-items: center; padding: 10px 14px;
+            border-radius: 8px; transition: background 0.2s;
+        }
+        .flow-step:hover { background: rgba(255,255,255,0.7); }
+        .step-number {
+            min-width: 30px; height: 30px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.8em; margin-right: 12px; flex-shrink: 0;
+        }
+        .step-number.request { background: #4299e1; color: white; }
+        .step-number.response { background: #48bb78; color: white; }
+        .step-number.internal { background: #9f7aea; color: white; }
+        .step-number.error-num { background: #fc8181; color: white; }
+        .step-content { flex: 1; }
+        .step-content .step-title { font-weight: 600; font-size: 0.88em; color: #2d3748; }
+        .step-content .step-desc { font-size: 0.78em; color: #718096; margin-top: 2px; }
+        .step-arrow { font-size: 1.1em; margin: 0 10px; color: #a0aec0; }
+        .step-from, .step-to {
+            font-size: 0.73em; padding: 3px 7px; border-radius: 4px;
+            font-weight: 600; white-space: nowrap; background: #e2e8f0; color: #4a5568;
+        }
+        /* Path labels */
+        .path-label {
+            display: inline-block; padding: 4px 12px; border-radius: 12px;
+            font-size: 0.75em; font-weight: 700; letter-spacing: 1px; margin-bottom: 12px;
+        }
+        .path-label.a { background: #fefcbf; color: #975a16; }
+        .path-label.b { background: #c6f6d5; color: #276749; }
+
+        /* Dual paths */
+        .dual-paths { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 10px; }
+        .path-box { border-radius: 12px; padding: 20px; border: 1px solid; }
+        .path-box.gradio-path { background: #fffff0; border-color: #ecc94b; }
+        .path-box.api-path { background: #f0fff4; border-color: #68d391; }
+        .path-box-title {
+            font-weight: 700; font-size: 0.9em; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* Error paths */
+        .error-paths { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 16px; }
+        .error-path { border-radius: 12px; padding: 20px; border: 1px dashed; }
+        .error-path.validation { background: #fffff0; border-color: #ecc94b; }
+        .error-path.processing { background: #fff5f5; border-color: #fc8181; }
+        .error-path-title {
+            font-weight: 700; font-size: 0.9em; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .badge { padding: 2px 8px; border-radius: 4px; font-size: 0.8em; font-weight: 700; }
+        .badge.a { background: #fefcbf; color: #975a16; }
+        .badge.b { background: #fed7d7; color: #9b2c2c; }
+        .error-step {
+            font-size: 0.82em; color: #4a5568; padding: 4px 0 4px 12px;
+            border-left: 2px solid #e2e8f0; margin-bottom: 6px;
+        }
+        .error-step code {
+            background: #edf2f7; padding: 1px 5px; border-radius: 3px;
+            font-size: 0.9em; color: #c53030;
+        }
+        /* Legend */
+        .legend {
+            display: flex; justify-content: center; gap: 24px; margin-top: 28px;
+            padding: 14px; background: #f7fafc; border-radius: 8px; border: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.8em; color: #4a5568; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .legend-dot.req { background: #4299e1; }
+        .legend-dot.res { background: #48bb78; }
+        .legend-dot.int { background: #9f7aea; }
+        .legend-dot.err { background: #fc8181; }
+
+        /* Architecture note */
+        .arch-note {
+            margin: 20px 0; padding: 16px 20px; background: #ebf8ff;
+            border-left: 4px solid #4299e1; border-radius: 6px; font-size: 0.85em; color: #2a4365;
+        }
+        .arch-note strong { color: #2b6cb0; }
+
+        /* Endpoints table */
+        .endpoints-section {
+            margin-top: 36px; padding: 24px; background: #f7fafc;
+            border-radius: 12px; border: 1px solid #e2e8f0;
+        }
+        .endpoints-section h2 { font-size: 1.1em; color: #2d3748; margin-bottom: 14px; }
+        .endpoints-table { width: 100%; border-collapse: collapse; font-size: 0.83em; }
+        .endpoints-table th {
+            background: #edf2f7; padding: 9px 10px; text-align: left;
+            font-weight: 600; color: #4a5568; border-bottom: 2px solid #cbd5e0;
+        }
+        .endpoints-table td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; color: #4a5568; }
+        .endpoints-table tr:hover td { background: #edf2f7; }
+        .method-badge {
+            display: inline-block; padding: 2px 7px; border-radius: 4px;
+            font-weight: 700; font-size: 0.8em;
+        }
+        .method-badge.get { background: #c6f6d5; color: #276749; }
+        .method-badge.post { background: #bee3f8; color: #2a4365; }
+        code.endpoint {
+            background: #2d3748; color: #e2e8f0; padding: 2px 7px;
+            border-radius: 4px; font-size: 0.9em;
+        }
+
+        @media (max-width: 900px) {
+            .components { flex-wrap: wrap; }
+            .dual-paths, .error-paths { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="diagram-container">
+
+    <h1>EduMentor AI &mdash; Request Flow Architecture</h1>
+    <p class="subtitle">Two independent entry points (Gradio UI + FastAPI REST) sharing a common service layer</p>
+
+    <!-- Architecture Note -->
+    <div class="arch-note">
+        <strong>Key Insight:</strong> Gradio UI does <strong>NOT</strong> call FastAPI via HTTP.
+        Both are independent entry points that <strong>directly import</strong> and call the same Python service functions.
+        They run as parallel servers (launched via <code>run.py</code>) sharing in-process memory (study material state, metrics singleton).
+    </div>
+
+    <!-- Component Boxes -->
+    <div class="components">
+        <div class="component comp-user">
+            <span class="label">Browser User</span>
+            <span class="sublabel">Gradio Web UI</span>
+        </div>
+        <div class="component comp-gradio">
+            <span class="label">Gradio UI</span>
+            <span class="sublabel">Port 7860 (app.py)</span>
+        </div>
+        <div class="component comp-service">
+            <span class="label">Service Layer</span>
+            <span class="sublabel">services/*.py</span>
+        </div>
+        <div class="component comp-model">
+            <span class="label">LLM / gTTS / STT</span>
+            <span class="sublabel">Lazy-loaded &amp; cached</span>
+        </div>
+        <div class="component comp-metrics">
+            <span class="label">LLMOps Metrics</span>
+            <span class="sublabel">In-memory singleton</span>
+        </div>
+    </div>
+    <div class="components">
+        <div class="component comp-user">
+            <span class="label">API Client</span>
+            <span class="sublabel">Postman / curl / App</span>
+        </div>
+        <div class="component comp-fastapi">
+            <span class="label">FastAPI REST</span>
+            <span class="sublabel">Port 8000 (api.py)</span>
+        </div>
+        <div class="component comp-service">
+            <span class="label">Service Layer</span>
+            <span class="sublabel">(same functions)</span>
+        </div>
+        <div class="component comp-model">
+            <span class="label">LLM / gTTS / STT</span>
+            <span class="sublabel">(same instances)</span>
+        </div>
+        <div class="component comp-metrics">
+            <span class="label">LLMOps Metrics</span>
+            <span class="sublabel">(same singleton)</span>
+        </div>
+    </div>
+    <!-- ===== PATH A: GRADIO UI FLOW ===== -->
+    <div class="flow-section success-section">
+        <span class="path-label a">PATH A &mdash; GRADIO UI (Browser User)</span>
+        <p class="section-title success">GRADIO UI REQUEST FLOW</p>
+
+        <div class="flow-steps">
+            <div class="flow-step">
+                <span class="step-number request">1</span>
+                <span class="step-from">User</span>
+                <span class="step-arrow">&rarr;</span>
+                <span class="step-to">Gradio UI</span>
+                <div class="step-content">
+                    <div class="step-title">User selects tab, enters input, and clicks action button</div>
+                    <div class="step-desc">Learn: upload file / Practice: generate quiz / Ask: type question / etc.</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <span class="step-number internal">2</span>
+                <span class="step-from">Gradio UI</span>
+                <span class="step-arrow">&crarr;</span>
+                <span class="step-to">UI handler</span>
+                <div class="step-content">
+                    <div class="step-title">Gradio calls Python handler function directly (no HTTP)</div>
+                    <div class="step-desc">e.g. ask_by_text(), process_upload(), create_quiz(), generate_summary()</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <span class="step-number request">3</span>
+                <span class="step-from">UI handler</span>
+                <span class="step-arrow">&rarr;</span>
+                <span class="step-to">Service Layer</span>
+                <div class="step-content">
+                    <div class="step-title">Handler imports and calls service function directly</div>
+                    <div class="step-desc">answer_question(), summarize_material(), generate_quiz(), transcribe_audio(), simplify_concept()</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <span class="step-number request">4</span>
+                <span class="step-from">Service</span>
+                <span class="step-arrow">&rarr;</span>
+                <span class="step-to">LLM Client</span>
+                <div class="step-content">
+                    <div class="step-title">Service calls get_llm_response() via utils/llm_client.py</div>
+                    <div class="step-desc">Routes to Gemini API, OpenAI API, or local FLAN-T5 based on Config.LLM_PROVIDER</div>
+                </div>
+            </div>
+            <div class="flow-step">
+                <span class="step-number request">5</span>
+                <span class="step-from">LLM Client</span>
+                <span class="step-arrow">&rarr;</span>
+                <span class="step-to">Model</span>
+                <div class="step-content">
+                    <div class="step-title">Load or reuse cached model, run inference</div>
+                    <div class="step-desc">Local: load FLAN-T5 once &rarr; torch inference | Cloud: HTTP call to Gemini/OpenAI API</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <span class="step-number response">6</span>
+                <span class="step-from">Model</span>
+                <span class="step-arrow">&larr;</span>
+                <span class="step-to">LLM Client</span>
+                <div class="step-content">
+                    <div class="step-title">Generated text + token count returned</div>
+                    <div class="step-desc">Decoded model output or API response text</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <span class="step-number internal">7</span>
+                <span class="step-from">LLM Client</span>
+                <span class="step-arrow">&rarr;</span>
+                <span class="step-to">Metrics</span>
+                <div class="step-content">
+                    <div class="step-title">Record latency, tokens, success status to MetricsLogger singleton</div>
+                    <div class="step-desc">metrics.log_request(service, latency, tokens_used, success=True)</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <span class="step-number response">8</span>
+                <span class="step-from">Service</span>
+                <span class="step-arrow">&larr;</span>
+                <span class="step-to">UI handler</span>
+                <div class="step-content">
+                    <div class="step-title">Service returns result dict: {"summary": "...", "error": False}</div>
+                    <div class="step-desc">Structured dictionary with task output + error flag</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <span class="step-number response">9</span>
+                <span class="step-from">Gradio UI</span>
+                <span class="step-arrow">&larr;</span>
+                <span class="step-to">User</span>
+                <div class="step-content">
+                    <div class="step-title">Gradio renders result in UI components</div>
+                    <div class="step-desc">Markdown output, audio player, textbox, or quiz display updated in browser</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ===== PATH B: FASTAPI REST FLOW ===== -->
+    <div class="flow-section success-section">
+        <span class="path-label b">PATH B &mdash; FASTAPI REST API (External Client)</span>
+        <p class="section-title success">FASTAPI REST REQUEST FLOW</p>
+
+        <div class="flow-steps">
+            <div class="flow-step">
+                <span class="step-number request">1</span>
+                <span class="step-from">API Client</span>
+                <span class="step-arrow">&rarr;</span>
+                <span class="step-to">FastAPI</span>
+                <div class="step-content">
+                    <div class="step-title">POST /api/v1/{endpoint} with JSON body or multipart file</div>
+                    <div class="step-desc">curl, Postman, mobile app, or any HTTP client &rarr; Port 8000</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <span class="step-number internal">2</span>
+                <span class="step-from">FastAPI</span>
+                <span class="step-arrow">&crarr;</span>
+                <span class="step-to">Pydantic</span>
+                <div class="step-content">
+                    <div class="step-title">Validate request via Pydantic models</div>
+                    <div class="step-desc">SummarizeRequest, AskRequest, QuizGenerateRequest &mdash; type checks, field constraints (ge, le)</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <span class="step-number request">3</span>
+                <span class="step-from">FastAPI</span>
+                <span class="step-arrow">&rarr;</span>
+                <span class="step-to">Service Layer</span>
+                <div class="step-content">
+                    <div class="step-title">Endpoint handler calls service function directly (same Python import)</div>
+                    <div class="step-desc">Same functions as Gradio path: summarize_material(), answer_question(), generate_quiz()</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <span class="step-number request">4</span>
+                <span class="step-from">Service</span>
+                <span class="step-arrow">&rarr;</span>
+                <span class="step-to">LLM Client</span>
+                <div class="step-content">
+                    <div class="step-title">Service calls get_llm_response() &rarr; Model inference</div>
+                    <div class="step-desc">Identical path as Gradio: LLM Client &rarr; Model &rarr; response &rarr; metrics logged</div>
+                </div>
+            </div>
+            <div class="flow-step">
+                <span class="step-number response">5</span>
+                <span class="step-from">Model</span>
+                <span class="step-arrow">&larr;</span>
+                <span class="step-to">LLM Client</span>
+                <div class="step-content">
+                    <div class="step-title">Inference output + metrics recorded</div>
+                    <div class="step-desc">Same model instances and MetricsLogger singleton shared with Gradio path</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <span class="step-number response">6</span>
+                <span class="step-from">Service</span>
+                <span class="step-arrow">&larr;</span>
+                <span class="step-to">FastAPI</span>
+                <div class="step-content">
+                    <div class="step-title">Service returns result dict to endpoint handler</div>
+                    <div class="step-desc">{"summary": "...", "error": False} or {"answer": "...", "relevance_score": 0.85}</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <span class="step-number response">7</span>
+                <span class="step-from">FastAPI</span>
+                <span class="step-arrow">&larr;</span>
+                <span class="step-to">API Client</span>
+                <div class="step-content">
+                    <div class="step-title">HTTP 200 JSON response via Pydantic response model</div>
+                    <div class="step-desc">Serialized as SummarizeResponse, AskResponse, QuizGenerateResponse, etc.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ===== CONTROLLED ERROR PATHS ===== -->
+    <div class="flow-section error-section">
+        <p class="section-title error">CONTROLLED ERROR PATHS</p>
+
+        <div class="error-paths">
+            <!-- Error Path A: Gradio UI Errors -->
+            <div class="error-path validation">
+                <div class="error-path-title">
+                    <span class="badge a">A</span> Gradio UI &mdash; Input / Service Failure
+                </div>
+                <div class="error-step">
+                    UI handler checks: empty input, missing material, no audio file
+                </div>
+                <div class="error-step">
+                    Returns user-friendly message: <code>"Please upload study material first."</code>
+                </div>
+                <div class="error-step">
+                    If service raises exception &rarr; caught in handler, returns error string
+                </div>
+                <div class="error-step">
+                    LLM Client retries rate-limit errors (429) up to 3 times with 15s delay
+                </div>
+                <div class="error-step">
+                    On final failure: <code>metrics.log_request(success=False)</code> &rarr; error displayed in Gradio output
+                </div>
+            </div>
+
+            <!-- Error Path B: FastAPI Errors -->
+            <div class="error-path processing">
+                <div class="error-path-title">
+                    <span class="badge b">B</span> FastAPI REST &mdash; Validation / Service Failure
+                </div>
+                <div class="error-step">
+                    Pydantic validation fails &rarr; automatic <code>HTTP 422</code> with field-level error details
+                </div>
+                <div class="error-step">
+                    Business logic check fails (no material loaded, bad file type) &rarr; <code>HTTPException(400)</code>
+                </div>
+                <div class="error-step">
+                    Service/model exception (API timeout, OOM, parse error) &rarr; <code>HTTPException(500)</code>
+                </div>
+                <div class="error-step">
+                    LLM Client retries rate-limit errors before raising RuntimeError
+                </div>
+                <div class="error-step">
+                    Metrics logged for failed requests: latency, tokens=0, success=False
+                </div>
+                <div class="error-step">
+                    Client receives: <code>{"detail": "Error processing file: ..."}</code>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ===== LEGEND ===== -->
+    <div class="legend">
+        <div class="legend-item"><div class="legend-dot req"></div><span>Request / forward call</span></div>
+        <div class="legend-item"><div class="legend-dot res"></div><span>Response / return</span></div>
+        <div class="legend-item"><div class="legend-dot int"></div><span>Internal processing</span></div>
+        <div class="legend-item"><div class="legend-dot err"></div><span>Error path</span></div>
+    </div>
+
+    <!-- ===== ENDPOINTS TABLE ===== -->
+    <div class="endpoints-section">
+        <h2>FastAPI Endpoints Reference (Port 8000)</h2>
+        <table class="endpoints-table">
+            <thead>
+                <tr>
+                    <th>Method</th>
+                    <th>Endpoint</th>
+                    <th>Service Function</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="method-badge get">GET</span></td>
+                    <td><code class="endpoint">/health</code></td>
+                    <td>&mdash;</td>
+                    <td>Health check &amp; config status</td>
+                </tr>
+                <tr>
+                    <td><span class="method-badge post">POST</span></td>
+                    <td><code class="endpoint">/api/v1/material/process</code></td>
+                    <td>extract_text_from_file() + load_material_for_qa()</td>
+                    <td>Upload &amp; index study material (PDF, DOCX, TXT)</td>
+                </tr>
+                <tr>
+                    <td><span class="method-badge post">POST</span></td>
+                    <td><code class="endpoint">/api/v1/summarize</code></td>
+                    <td>summarize_material()</td>
+                    <td>Generate structured summary</td>
+                </tr>
+                <tr>
+                    <td><span class="method-badge post">POST</span></td>
+                    <td><code class="endpoint">/api/v1/explain</code></td>
+                    <td>simplify_concept()</td>
+                    <td>Explain concept at chosen comprehension level</td>
+                </tr>
+                <tr>
+                    <td><span class="method-badge post">POST</span></td>
+                    <td><code class="endpoint">/api/v1/ask</code></td>
+                    <td>answer_question()</td>
+                    <td>RAG-based Q&amp;A over uploaded material</td>
+                </tr>
+                <tr>
+                    <td><span class="method-badge post">POST</span></td>
+                    <td><code class="endpoint">/api/v1/quiz/generate</code></td>
+                    <td>generate_quiz()</td>
+                    <td>Adaptive quiz (MCQ, True/False, Short Answer)</td>
+                </tr>
+                <tr>
+                    <td><span class="method-badge post">POST</span></td>
+                    <td><code class="endpoint">/api/v1/quiz/evaluate</code></td>
+                    <td>evaluate_answers()</td>
+                    <td>Score student answers &amp; provide feedback</td>
+                </tr>
+                <tr>
+                    <td><span class="method-badge post">POST</span></td>
+                    <td><code class="endpoint">/api/v1/speech/transcribe</code></td>
+                    <td>transcribe_audio()</td>
+                    <td>Speech-to-text (WAV, MP3, WEBM)</td>
+                </tr>
+                <tr>
+                    <td><span class="method-badge post">POST</span></td>
+                    <td><code class="endpoint">/api/v1/speech/synthesize</code></td>
+                    <td>synthesize_speech()</td>
+                    <td>Text-to-speech &rarr; MP3 file download</td>
+                </tr>
+                <tr>
+                    <td><span class="method-badge get">GET</span></td>
+                    <td><code class="endpoint">/api/v1/metrics</code></td>
+                    <td>metrics.get_summary()</td>
+                    <td>LLMOps dashboard metrics (latency, tokens, throughput)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- ===== GRADIO TABS REFERENCE ===== -->
+    <div class="endpoints-section" style="margin-top: 20px;">
+        <h2>Gradio UI Tabs &amp; Handlers (Port 7860)</h2>
+        <table class="endpoints-table">
+            <thead>
+                <tr>
+                    <th>Tab</th>
+                    <th>UI File</th>
+                    <th>Handler Functions</th>
+                    <th>Service Calls</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Learn</strong></td>
+                    <td>ui/tab_learn.py</td>
+                    <td>process_upload(), generate_summary(), explain_concept()</td>
+                    <td>extract_text_from_file(), summarize_material(), simplify_concept(), load_material_for_qa()</td>
+                </tr>
+                <tr>
+                    <td><strong>Ask Tutor</strong></td>
+                    <td>ui/tab_ask.py</td>
+                    <td>ask_by_text(), ask_by_voice(), speak_answer()</td>
+                    <td>answer_question(), transcribe_from_gradio(), synthesize_speech()</td>
+                </tr>
+                <tr>
+                    <td><strong>Practice</strong></td>
+                    <td>ui/tab_practice.py</td>
+                    <td>create_quiz(), show_answers(), submit_answers()</td>
+                    <td>generate_quiz(), format_quiz_for_display()</td>
+                </tr>
+                <tr>
+                    <td><strong>Results</strong></td>
+                    <td>ui/tab_results.py</td>
+                    <td>run_evaluation()</td>
+                    <td>evaluate_answers()</td>
+                </tr>
+                <tr>
+                    <td><strong>Monitoring</strong></td>
+                    <td>ui/tab_monitoring.py</td>
+                    <td>refresh_metrics(), export_metrics_file()</td>
+                    <td>metrics.get_summary(), metrics.export_metrics()</td>
+                </tr>
+                <tr>
+                    <td><strong>Fine-tuning</strong></td>
+                    <td>ui/tab_finetune.py</td>
+                    <td>run_finetuning(), test_finetuned_model(), get_report_display()</td>
+                    <td>Hugging Face Transformers Trainer, AutoModelForSeq2SeqLM</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>
