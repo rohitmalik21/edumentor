@@ -4,13 +4,12 @@
 **Group:** 32  
 **Assignment:** 2  
 
-| S.No. | Name | Student ID |
-|-------|------|------------|
-| 1 | Rohit Malik | 2024AC05988 |
-| 2 | Suraj Prakash Uniyal | 2024AD05123 |
-| 3 | Sudhakar Katam | 2024AC05889 |
-| 4 | C S Krishna Chaitanya P | 2024AD05457 |
-| 5 | Nikhil Gupta | 2024AC05640 |
+| S.No. | Name | Student ID | Contribution | % |
+|-------|------|------------|--------------|---|
+| 1 | Nikhil Gupta | 2024AC05640 | Requirements, API design, API testing, workflow validation | 25% |
+| 2 | Sudhakar Katam | 2024AC05889 | NLP, summarization, simplification, RAG, embeddings/FAISS | 25% |
+| 3 | Suraj Prakash | 2024AD05123 | Quiz generation, evaluation, speech, UI/user-flow testing | 25% |
+| 4 | Rohit Malik | 2024AC05988 | Integration, LLM configuration, LLMOps, deployment, testing | 25% |
 
 ---
 

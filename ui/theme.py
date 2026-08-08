@@ -116,12 +116,13 @@ APP_HEADER_HTML = """
             <th style="padding: 5px 15px; text-align: left; color: white;">S.No.</th>
             <th style="padding: 5px 15px; text-align: left; color: white;">Name</th>
             <th style="padding: 5px 15px; text-align: left; color: white;">Student ID</th>
+            <th style="padding: 5px 15px; text-align: left; color: white;">Contribution</th>
+            <th style="padding: 5px 15px; text-align: left; color: white;">%</th>
         </tr>
-        <tr><td style="padding: 4px 15px; color: white;">1</td><td style="padding: 4px 15px; color: white;">Rohit Malik</td><td style="padding: 4px 15px; color: white;">2024AC05988</td></tr>
-        <tr><td style="padding: 4px 15px; color: white;">2</td><td style="padding: 4px 15px; color: white;">Suraj Prakash Uniyal</td><td style="padding: 4px 15px; color: white;">2024AD05123</td></tr>
-        <tr><td style="padding: 4px 15px; color: white;">3</td><td style="padding: 4px 15px; color: white;">Sudhakar Katam</td><td style="padding: 4px 15px; color: white;">2024AC05889</td></tr>
-        <tr><td style="padding: 4px 15px; color: white;">4</td><td style="padding: 4px 15px; color: white;">C S Krishna Chaitanya P</td><td style="padding: 4px 15px; color: white;">2024AD05457</td></tr>
-        <tr><td style="padding: 4px 15px; color: white;">5</td><td style="padding: 4px 15px; color: white;">Nikhil Gupta</td><td style="padding: 4px 15px; color: white;">2024AC05640</td></tr>
+        <tr><td style="padding: 4px 15px; color: white;">1</td><td style="padding: 4px 15px; color: white;">Nikhil Gupta</td><td style="padding: 4px 15px; color: white;">2024AC05640</td><td style="padding: 4px 15px; color: white;">Requirements, API design, API testing, workflow validation</td><td style="padding: 4px 15px; color: white;">25%</td></tr>
+        <tr><td style="padding: 4px 15px; color: white;">2</td><td style="padding: 4px 15px; color: white;">Sudhakar Katam</td><td style="padding: 4px 15px; color: white;">2024AC05889</td><td style="padding: 4px 15px; color: white;">NLP, summarization, simplification, RAG, embeddings/FAISS</td><td style="padding: 4px 15px; color: white;">25%</td></tr>
+        <tr><td style="padding: 4px 15px; color: white;">3</td><td style="padding: 4px 15px; color: white;">Suraj Prakash</td><td style="padding: 4px 15px; color: white;">2024AD05123</td><td style="padding: 4px 15px; color: white;">Quiz generation, evaluation, speech, UI/user-flow testing</td><td style="padding: 4px 15px; color: white;">25%</td></tr>
+        <tr><td style="padding: 4px 15px; color: white;">4</td><td style="padding: 4px 15px; color: white;">Rohit Malik</td><td style="padding: 4px 15px; color: white;">2024AC05988</td><td style="padding: 4px 15px; color: white;">Integration, LLM configuration, LLMOps, deployment, testing</td><td style="padding: 4px 15px; color: white;">25%</td></tr>
     </table>
 </div>
 """
